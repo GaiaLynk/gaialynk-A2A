@@ -25,8 +25,26 @@ const RECEIPT_SIGNER = "gaialynk-phase0";
 const receipts: Receipt[] = [];
 const payloadByReceiptId = new Map<string, Record<string, unknown>>();
 
+const canonicalize = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map((item) => canonicalize(item));
+  }
+
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b));
+    const output: Record<string, unknown> = {};
+    for (const [key, nestedValue] of entries) {
+      output[key] = canonicalize(nestedValue);
+    }
+    return output;
+  }
+
+  return value;
+};
+
 const hashPayload = (payload: Record<string, unknown>): string => {
-  return createHash("sha256").update(JSON.stringify(payload)).digest("hex");
+  const canonicalPayload = canonicalize(payload);
+  return createHash("sha256").update(JSON.stringify(canonicalPayload)).digest("hex");
 };
 
 const signPayloadHash = (payloadHash: string): string => {
