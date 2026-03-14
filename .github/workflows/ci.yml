@@ -27,3 +27,40 @@ jobs:
 
       - name: Test
         run: npm test
+
+  postgres-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: gaialynk
+          POSTGRES_PASSWORD: gaialynk
+          POSTGRES_DB: gaialynk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U gaialynk -d gaialynk"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://gaialynk:gaialynk@localhost:5432/gaialynk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run migrations
+        run: npm run db:migrate
+
+      - name: PostgreSQL integration test
+        run: npm run test:pg

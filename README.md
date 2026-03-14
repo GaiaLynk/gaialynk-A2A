@@ -43,6 +43,25 @@ npm test
 npm run typecheck
 ```
 
+PostgreSQL 集成测试（需设置 `DATABASE_URL` 并先执行 migration）：
+
+```bash
+npm run db:migrate
+npm run test:pg
+```
+
+也可一键验证：
+
+```bash
+npm run verify:pg:local
+```
+
+首次本地 PostgreSQL 启动与全流程初始化（启动 + migrate + reset + seed + verify）：
+
+```bash
+npm run bootstrap:pg:local
+```
+
 ## 关键 API
 
 - `POST /api/v1/conversations`
