@@ -1,4 +1,4 @@
-import { listAuditEvents } from "../audit/audit.store";
+import { listAuditEventsAsync } from "../audit/audit.store";
 import { listConversations } from "../conversation/conversation.store";
 
 interface InvocationBucket {
@@ -11,8 +11,8 @@ export interface Phase0Metrics {
   conversations_active_total: number;
 }
 
-export const getPhase0Metrics = (): Phase0Metrics => {
-  const events = listAuditEvents().data;
+export const getPhase0Metrics = async (): Promise<Phase0Metrics> => {
+  const events = (await listAuditEventsAsync()).data;
   const invocationTotal: Record<string, InvocationBucket> = {};
   const auditEventsTotal: Record<string, number> = {};
 
@@ -28,7 +28,7 @@ export const getPhase0Metrics = (): Phase0Metrics => {
     }
   }
 
-  const conversationsActiveTotal = listConversations().filter(
+  const conversationsActiveTotal = (await listConversations()).filter(
     (conversation) => conversation.state === "active",
   ).length;
 

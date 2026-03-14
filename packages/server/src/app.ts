@@ -2,42 +2,42 @@ import { randomUUID } from "node:crypto";
 import { Hono } from "hono";
 import { z } from "zod";
 import {
-  addParticipant,
-  appendMessage,
-  createConversation,
-  getConversationDetail,
+  addParticipantAsync,
+  appendMessageAsync,
+  createConversationAsync,
+  getConversationDetailAsync,
   listConversations,
   resetConversationStore,
 } from "./modules/conversation/conversation.store";
 import {
-  getAgentById,
-  listAgents,
-  registerAgent,
+  getAgentByIdAsync,
+  listAgentsAsync,
+  registerAgentAsync,
   resetAgentStore,
 } from "./modules/directory/agent.store";
 import { requestAgent } from "./modules/gateway/a2a.gateway";
 import {
-  createPendingInvocation,
-  getInvocationById,
-  markInvocationCompleted,
+  createPendingInvocationAsync,
+  getInvocationByIdAsync,
+  markInvocationCompletedAsync,
   resetInvocationStore,
 } from "./modules/gateway/invocation.store";
 import {
-  emitAuditEvent,
-  listAuditEvents,
+  emitAuditEventAsync,
+  listAuditEventsAsync,
   resetAuditStore,
 } from "./modules/audit/audit.store";
 import {
-  getReceiptById,
-  issueReceipt,
+  getReceiptByIdAsync,
+  issueReceiptAsync,
   resetReceiptStore,
-  verifyReceipt,
+  verifyReceiptAsync,
 } from "./modules/audit/receipt.store";
 import { getPhase0Metrics } from "./modules/metrics/metrics.service";
 import {
-  heartbeatNode,
-  listNodes,
-  registerNode,
+  heartbeatNodeAsync,
+  listNodesAsync,
+  registerNodeAsync,
   resetNodeStore,
 } from "./modules/node-hub/node.store";
 import { evaluateTrustDecision } from "./modules/trust/trust.engine";
@@ -97,21 +97,21 @@ export const createApp = (): Hono => {
 
   app.post("/api/v1/conversations", async (c) => {
     const payload = createConversationSchema.parse(await c.req.json());
-    const conversation = createConversation(payload.title);
+    const conversation = await createConversationAsync(payload.title);
 
     return c.json({ data: conversation }, 201);
   });
 
-  app.get("/api/v1/conversations", () => {
-    return new Response(JSON.stringify({ data: listConversations() }), {
+  app.get("/api/v1/conversations", async () => {
+    return new Response(JSON.stringify({ data: await listConversations() }), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
   });
 
-  app.get("/api/v1/conversations/:id", (c) => {
+  app.get("/api/v1/conversations/:id", async (c) => {
     const conversationId = c.req.param("id");
-    const detail = getConversationDetail(conversationId);
+    const detail = await getConversationDetailAsync(conversationId);
 
     if (!detail) {
       return c.json({ error: { code: "conversation_not_found", message: "Conversation not found" } }, 404);
@@ -122,38 +122,37 @@ export const createApp = (): Hono => {
 
   app.post("/api/v1/agents", async (c) => {
     const payload = registerAgentSchema.parse(await c.req.json());
-    const agent = registerAgent(payload);
+    const agent = await registerAgentAsync(payload);
 
     return c.json({ data: agent }, 201);
   });
 
-  app.get("/api/v1/agents", () => {
-    return new Response(JSON.stringify({ data: listAgents() }), {
+  app.get("/api/v1/agents", async () => {
+    return new Response(JSON.stringify({ data: await listAgentsAsync() }), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
   });
 
-  app.get("/api/v1/agents/:id", (c) => {
+  app.get("/api/v1/agents/:id", async (c) => {
     const agentId = c.req.param("id");
-    const agent = getAgentById(agentId);
+    const agent = await getAgentByIdAsync(agentId);
     if (!agent) {
       return c.json({ error: { code: "agent_not_found", message: "Agent not found" } }, 404);
     }
-
     return c.json({ data: agent }, 200);
   });
 
   app.post("/api/v1/conversations/:id/agents", async (c) => {
     const conversationId = c.req.param("id");
     const payload = joinAgentSchema.parse(await c.req.json());
-    const agent = getAgentById(payload.agent_id);
+    const agent = await getAgentByIdAsync(payload.agent_id);
 
     if (!agent) {
       return c.json({ error: { code: "agent_not_found", message: "Agent not found" } }, 404);
     }
 
-    const addedParticipant = addParticipant({
+    const addedParticipant = await addParticipantAsync({
       conversationId,
       participantType: "agent",
       participantId: payload.agent_id,
@@ -172,7 +171,7 @@ export const createApp = (): Hono => {
     const payload = sendMessageSchema.parse(await c.req.json());
     const correlationId = randomUUID();
 
-    const userMessage = appendMessage({
+    const userMessage = await appendMessageAsync({
       conversationId,
       senderType: "user",
       senderId: payload.sender_id,
@@ -183,7 +182,7 @@ export const createApp = (): Hono => {
       return c.json({ error: { code: "conversation_not_found", message: "Conversation not found" } }, 404);
     }
 
-    const detail = getConversationDetail(conversationId);
+    const detail = await getConversationDetailAsync(conversationId);
     if (!detail) {
       return c.json({ error: { code: "conversation_not_found", message: "Conversation not found" } }, 404);
     }
@@ -194,7 +193,7 @@ export const createApp = (): Hono => {
       return c.json({ data: userMessage }, 201);
     }
 
-    const agent = getAgentById(firstAgent.participant_id);
+    const agent = await getAgentByIdAsync(firstAgent.participant_id);
 
     if (!agent) {
       return c.json({ error: { code: "agent_not_found", message: "Agent not found" } }, 404);
@@ -216,7 +215,7 @@ export const createApp = (): Hono => {
           ? "invocation.denied"
           : "invocation.need_confirmation";
 
-    emitAuditEvent({
+    await emitAuditEventAsync({
       eventType: decisionEventType,
       conversationId,
       agentId: agent.id,
@@ -231,14 +230,14 @@ export const createApp = (): Hono => {
     });
 
     if (trustDecision.decision === "need_confirmation") {
-      const pendingInvocation = createPendingInvocation({
+      const pendingInvocation = await createPendingInvocationAsync({
         conversationId,
         agentId: agent.id,
         requesterId: payload.sender_id,
         userText: payload.text,
       });
 
-      emitAuditEvent({
+      await emitAuditEventAsync({
         eventType: "invocation.pending_confirmation",
         conversationId,
         agentId: agent.id,
@@ -283,7 +282,7 @@ export const createApp = (): Hono => {
       userText: payload.text,
     });
 
-    const agentMessage = appendMessage({
+    const agentMessage = await appendMessageAsync({
       conversationId,
       senderType: "agent",
       senderId: agent.id,
@@ -294,7 +293,7 @@ export const createApp = (): Hono => {
       return c.json({ error: { code: "conversation_not_found", message: "Conversation not found" } }, 404);
     }
 
-    const completedEvent = emitAuditEvent({
+    const completedEvent = await emitAuditEventAsync({
       eventType: "invocation.completed",
       conversationId,
       agentId: agent.id,
@@ -307,7 +306,7 @@ export const createApp = (): Hono => {
       correlationId,
     });
 
-    const receipt = issueReceipt({
+    const receipt = await issueReceiptAsync({
       auditEventId: completedEvent.id,
       conversationId,
       receiptType: "invocation_completed",
@@ -334,7 +333,7 @@ export const createApp = (): Hono => {
     const invocationId = c.req.param("id");
     const payload = confirmInvocationSchema.parse(await c.req.json());
 
-    const invocation = getInvocationById(invocationId);
+    const invocation = await getInvocationByIdAsync(invocationId);
     if (!invocation) {
       return c.json({ error: { code: "invocation_not_found", message: "Invocation not found" } }, 404);
     }
@@ -343,14 +342,14 @@ export const createApp = (): Hono => {
       return c.json({ error: { code: "invocation_not_confirmable", message: "Invocation already processed" } }, 409);
     }
 
-    const agent = getAgentById(invocation.agent_id);
+    const agent = await getAgentByIdAsync(invocation.agent_id);
     if (!agent) {
       return c.json({ error: { code: "agent_not_found", message: "Agent not found" } }, 404);
     }
 
     const correlationId = randomUUID();
 
-    emitAuditEvent({
+    await emitAuditEventAsync({
       eventType: "invocation.confirmed",
       conversationId: invocation.conversation_id,
       agentId: agent.id,
@@ -366,7 +365,7 @@ export const createApp = (): Hono => {
       userText: invocation.user_text,
     });
 
-    const agentMessage = appendMessage({
+    const agentMessage = await appendMessageAsync({
       conversationId: invocation.conversation_id,
       senderType: "agent",
       senderId: agent.id,
@@ -377,9 +376,9 @@ export const createApp = (): Hono => {
       return c.json({ error: { code: "conversation_not_found", message: "Conversation not found" } }, 404);
     }
 
-    markInvocationCompleted(invocation.id);
+    await markInvocationCompletedAsync(invocation.id);
 
-    const completedEvent = emitAuditEvent({
+    const completedEvent = await emitAuditEventAsync({
       eventType: "invocation.completed",
       conversationId: invocation.conversation_id,
       agentId: agent.id,
@@ -392,7 +391,7 @@ export const createApp = (): Hono => {
       correlationId,
     });
 
-    const receipt = issueReceipt({
+    const receipt = await issueReceiptAsync({
       auditEventId: completedEvent.id,
       conversationId: invocation.conversation_id,
       receiptType: "invocation_completed",
@@ -416,9 +415,9 @@ export const createApp = (): Hono => {
     );
   });
 
-  app.get("/api/v1/invocations/:id", (c) => {
+  app.get("/api/v1/invocations/:id", async (c) => {
     const invocationId = c.req.param("id");
-    const invocation = getInvocationById(invocationId);
+    const invocation = await getInvocationByIdAsync(invocationId);
     if (!invocation) {
       return c.json({ error: { code: "invocation_not_found", message: "Invocation not found" } }, 404);
     }
@@ -426,14 +425,14 @@ export const createApp = (): Hono => {
     return c.json({ data: invocation }, 200);
   });
 
-  app.get("/api/v1/audit-events", (c) => {
+  app.get("/api/v1/audit-events", async (c) => {
     const eventType = c.req.query("event_type");
     const conversationId = c.req.query("conversation_id");
     const cursor = c.req.query("cursor");
     const limit = c.req.query("limit");
 
     const parsedLimit = limit ? Number(limit) : undefined;
-    const result = listAuditEvents({
+    const result = await listAuditEventsAsync({
       eventType,
       conversationId,
       cursor,
@@ -446,9 +445,9 @@ export const createApp = (): Hono => {
     });
   });
 
-  app.get("/api/v1/receipts/:id", (c) => {
+  app.get("/api/v1/receipts/:id", async (c) => {
     const receiptId = c.req.param("id");
-    const receipt = getReceiptById(receiptId);
+    const receipt = await getReceiptByIdAsync(receiptId);
 
     if (!receipt) {
       return c.json({ error: { code: "receipt_not_found", message: "Receipt not found" } }, 404);
@@ -458,7 +457,7 @@ export const createApp = (): Hono => {
       {
         data: receipt,
         meta: {
-          is_valid: verifyReceipt(receipt),
+          is_valid: await verifyReceiptAsync(receipt),
         },
       },
       200,
@@ -467,13 +466,13 @@ export const createApp = (): Hono => {
 
   app.post("/api/v1/nodes/register", async (c) => {
     const payload = registerNodeSchema.parse(await c.req.json());
-    const node = registerNode(payload);
+    const node = await registerNodeAsync(payload);
     return c.json({ data: node }, 201);
   });
 
   app.post("/api/v1/nodes/heartbeat", async (c) => {
     const payload = heartbeatNodeSchema.parse(await c.req.json());
-    const node = heartbeatNode(payload.node_id);
+    const node = await heartbeatNodeAsync(payload.node_id);
     if (!node) {
       return c.json({ error: { code: "node_not_found", message: "Node not found" } }, 404);
     }
@@ -481,15 +480,15 @@ export const createApp = (): Hono => {
     return c.json({ data: node }, 200);
   });
 
-  app.get("/api/v1/nodes", () => {
-    return new Response(JSON.stringify({ data: listNodes() }), {
+  app.get("/api/v1/nodes", async () => {
+    return new Response(JSON.stringify({ data: await listNodesAsync() }), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
   });
 
-  app.get("/api/v1/metrics", () => {
-    return new Response(JSON.stringify({ data: getPhase0Metrics() }), {
+  app.get("/api/v1/metrics", async () => {
+    return new Response(JSON.stringify({ data: await getPhase0Metrics() }), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
