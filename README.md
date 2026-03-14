@@ -1,4 +1,4 @@
-# GAIALYNK Phase 0
+# GAIALYNK 
 
 Phase 0 最小交付聚焦可信调用闭环：
 
