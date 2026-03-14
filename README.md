@@ -82,3 +82,9 @@ npm run typecheck
 ```bash
 npm run demo:phase0
 ```
+
+## Open Source
+
+- [Contributing Guide](./CONTRIBUTING.md)
+- [Security Policy](./SECURITY.md)
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
