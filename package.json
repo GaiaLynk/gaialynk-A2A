@@ -16,6 +16,7 @@
     "verify:pg:local": "./scripts/verify-pg-local.sh",
     "bootstrap:pg:local": "./scripts/bootstrap-pg-local.sh",
     "test": "vitest run",
+    "test:contracts:mainline": "vitest run packages/server/tests/mainline-contract-compatibility.test.ts",
     "test:pg": "vitest run packages/server/tests/postgres-integration.test.ts",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
