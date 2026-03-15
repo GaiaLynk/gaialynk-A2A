@@ -1,0 +1,209 @@
+import { describe, expect, test } from "vitest";
+import { buildFunnelSnapshot } from "../src/lib/analytics/funnel";
+
+describe("funnel snapshot", () => {
+  test("calculates counts and rates for locale", () => {
+    const now = new Date("2026-01-01T01:00:00Z").getTime();
+    const snapshot = buildFunnelSnapshot(
+      [
+        {
+          name: "page_view",
+          payload: { locale: "en", page: "/en", referrer: "direct", timestamp: "2026-01-01T00:00:00Z" },
+          receivedAt: "2026-01-01T00:00:00Z",
+        },
+        {
+          name: "cta_click",
+          payload: {
+            locale: "en",
+            page: "home",
+            referrer: "internal",
+            timestamp: "2026-01-01T00:00:01Z",
+            cta_id: "start_building",
+          },
+          receivedAt: "2026-01-01T00:00:01Z",
+        },
+        {
+          name: "docs_click",
+          payload: {
+            locale: "en",
+            page: "developers",
+            referrer: "internal",
+            timestamp: "2026-01-01T00:00:02Z",
+            is_suspected_bot: true,
+          },
+          receivedAt: "2026-01-01T00:00:02Z",
+        },
+        {
+          name: "activation_event",
+          payload: {
+            locale: "en",
+            page: "docs_redirect",
+            referrer: "internal",
+            timestamp: "2026-01-01T00:00:03Z",
+          },
+          receivedAt: "2026-01-01T00:00:03Z",
+        },
+      ],
+      "en",
+      now,
+    );
+
+    expect(snapshot.counts.homeViews).toBe(1);
+    expect(snapshot.counts.startBuildingClicks).toBe(1);
+    expect(snapshot.counts.docsClicks).toBe(1);
+    expect(snapshot.counts.activationEvents).toBe(1);
+    expect(snapshot.rates.startBuildingCtr).toBe(100);
+    expect(snapshot.rates.docsActivationRate).toBe(100);
+    expect(snapshot.rates.activationCompletionRate).toBe(100);
+    expect(snapshot.topCtas[0]?.key).toBe("start_building");
+    expect(snapshot.topPages[0]?.key).toBe("/en");
+    expect(snapshot.suspectedEvents).toBe(1);
+    expect(snapshot.suspectedTrafficSharePct).toBeGreaterThan(0);
+    expect(snapshot.suspectedByHour24h).toHaveLength(24);
+    const recentBucket = snapshot.suspectedByHour24h[snapshot.suspectedByHour24h.length - 1];
+    expect(recentBucket?.total).toBe(3);
+    expect(recentBucket?.suspected).toBe(1);
+  });
+
+  test("emits funnel threshold alerts when metrics cross guardrails", () => {
+    const now = new Date("2026-01-01T01:00:00Z").getTime();
+    const snapshot = buildFunnelSnapshot(
+      [
+        {
+          name: "page_view",
+          payload: { locale: "en", page: "/en", referrer: "direct", timestamp: "2026-01-01T00:00:00Z" },
+          receivedAt: "2026-01-01T00:00:00Z",
+        },
+        {
+          name: "page_view",
+          payload: { locale: "en", page: "/en", referrer: "direct", timestamp: "2026-01-01T00:10:00Z" },
+          receivedAt: "2026-01-01T00:10:00Z",
+        },
+        {
+          name: "page_view",
+          payload: { locale: "en", page: "/en", referrer: "direct", timestamp: "2026-01-01T00:20:00Z" },
+          receivedAt: "2026-01-01T00:20:00Z",
+        },
+        {
+          name: "cta_click",
+          payload: {
+            locale: "en",
+            page: "home",
+            referrer: "internal",
+            timestamp: "2026-01-01T00:21:00Z",
+            cta_id: "start_building",
+            is_suspected_bot: true,
+          },
+          receivedAt: "2026-01-01T00:21:00Z",
+        },
+      ],
+      "en",
+      now,
+      {
+        minStartBuildingCtrPct: 50,
+        minSubmitRatePct: 20,
+        maxSuspectedTrafficSharePct: 10,
+      },
+    );
+
+    expect(snapshot.alerts.map((item) => item.code)).toContain("LOW_START_BUILDING_CTR");
+    expect(snapshot.alerts.map((item) => item.code)).toContain("LOW_SUBMIT_RATE");
+    expect(snapshot.alerts.map((item) => item.code)).toContain("HIGH_SUSPECTED_TRAFFIC_SHARE");
+  });
+
+  test("builds locale diagnostics and gap alerts", () => {
+    const now = new Date("2026-01-01T01:00:00Z").getTime();
+    const snapshot = buildFunnelSnapshot(
+      [
+        {
+          name: "page_view",
+          payload: { locale: "en", page: "/en", referrer: "direct", timestamp: "2026-01-01T00:00:00Z" },
+          receivedAt: "2026-01-01T00:00:00Z",
+        },
+        {
+          name: "cta_click",
+          payload: {
+            locale: "en",
+            page: "home",
+            referrer: "internal",
+            timestamp: "2026-01-01T00:00:01Z",
+            cta_id: "start_building",
+          },
+          receivedAt: "2026-01-01T00:00:01Z",
+        },
+        {
+          name: "page_view",
+          payload: { locale: "zh-Hans", page: "/zh-Hans", referrer: "direct", timestamp: "2026-01-01T00:10:00Z" },
+          receivedAt: "2026-01-01T00:10:00Z",
+        },
+      ],
+      "all",
+      now,
+      {
+        minStartBuildingCtrPct: 0,
+        minSubmitRatePct: 0,
+        maxSuspectedTrafficSharePct: 100,
+      },
+      {
+        minCtrGapPct: 20,
+        minSubmitRateGapPct: 10,
+        minSuspectedShareGapPct: 10,
+      },
+    );
+
+    expect(snapshot.localeDiagnostics.length).toBe(3);
+    expect(snapshot.localeGapAlerts.map((item) => item.code)).toContain("LOCALE_CTR_GAP_HIGH");
+  });
+
+  test("does not emit locale gap alert when locales are balanced", () => {
+    const now = new Date("2026-01-01T01:00:00Z").getTime();
+    const input = [
+      {
+        name: "page_view" as const,
+        payload: { locale: "en" as const, page: "/en", referrer: "direct", timestamp: "2026-01-01T00:00:00Z" },
+        receivedAt: "2026-01-01T00:00:00Z",
+      },
+      {
+        name: "cta_click" as const,
+        payload: { locale: "en" as const, page: "home", referrer: "internal", timestamp: "2026-01-01T00:01:00Z", cta_id: "start_building" },
+        receivedAt: "2026-01-01T00:01:00Z",
+      },
+      {
+        name: "page_view" as const,
+        payload: { locale: "zh-Hant" as const, page: "/zh-Hant", referrer: "direct", timestamp: "2026-01-01T00:02:00Z" },
+        receivedAt: "2026-01-01T00:02:00Z",
+      },
+      {
+        name: "cta_click" as const,
+        payload: { locale: "zh-Hant" as const, page: "home", referrer: "internal", timestamp: "2026-01-01T00:03:00Z", cta_id: "start_building" },
+        receivedAt: "2026-01-01T00:03:00Z",
+      },
+      {
+        name: "page_view" as const,
+        payload: { locale: "zh-Hans" as const, page: "/zh-Hans", referrer: "direct", timestamp: "2026-01-01T00:04:00Z" },
+        receivedAt: "2026-01-01T00:04:00Z",
+      },
+      {
+        name: "cta_click" as const,
+        payload: { locale: "zh-Hans" as const, page: "home", referrer: "internal", timestamp: "2026-01-01T00:05:00Z", cta_id: "start_building" },
+        receivedAt: "2026-01-01T00:05:00Z",
+      },
+    ];
+    const snapshot = buildFunnelSnapshot(
+      input,
+      "all",
+      now,
+      {
+        minStartBuildingCtrPct: 0,
+        minSubmitRatePct: 0,
+        maxSuspectedTrafficSharePct: 100,
+      },
+      {
+        minCtrGapPct: 20,
+        minSubmitRateGapPct: 10,
+        minSuspectedShareGapPct: 10,
+      },
+    );
+    expect(snapshot.localeGapAlerts.length).toBe(0);
+  });
+});

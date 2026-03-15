@@ -50,6 +50,14 @@ Manual steps:
   - [ ] `packages/server/tests/mainline-contract-compatibility.test.ts`
   - [ ] Migration / version notes in PR description
 
+## One-click Deploy Path Declaration (required if touching deploy/usage APIs)
+
+- [ ] This PR does not affect one-click deploy frozen path (`/deploy/templates`, `/deploy/templates/:templateId/instantiate`, `/deployments/:deploymentId/activate`, `/usage/limits`)
+- [ ] This PR affects one-click deploy frozen path and I have updated:
+  - [ ] `docs/Agent-IM-Mainline-OneClick-Deploy-Contract-Freeze-List-v1.1-2026-03-15.md`
+  - [ ] `packages/server/tests/mainline-contract-compatibility.test.ts`
+  - [ ] Evidence note in weekly ops report
+
 If breaking:
 
 - Migration notes:

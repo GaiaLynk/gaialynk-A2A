@@ -7,6 +7,24 @@ on:
     branches: [main]
 
 jobs:
+  website-promise-consistency-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Promise consistency gate tests
+        run: npx vitest run --config vitest.website.config.ts packages/website/tests/promise-consistency-gate.test.ts packages/website/tests/vision-coverage.test.ts
+
   test-and-typecheck:
     runs-on: ubuntu-latest
     steps:
