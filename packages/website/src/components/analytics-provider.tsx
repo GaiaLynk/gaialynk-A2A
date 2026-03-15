@@ -10,6 +10,7 @@ type DataLayerWindow = Window & {
 
 export function AnalyticsProvider() {
   useEffect(() => {
+    const sessionStartMs = Date.now();
     let posthog: { capture: (event: string, payload: Record<string, unknown>) => void } | null = null;
     const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://app.posthog.com";
@@ -45,7 +46,14 @@ export function AnalyticsProvider() {
       void fetch("/api/analytics/events", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name, payload: normalized }),
+        body: JSON.stringify({
+          name,
+          payload: {
+            ...normalized,
+            client_elapsed_ms: Date.now() - sessionStartMs,
+            honeytoken: "",
+          },
+        }),
         keepalive: true,
       }).catch(() => null);
       if (posthog) {

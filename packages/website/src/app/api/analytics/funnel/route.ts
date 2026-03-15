@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false, error: "Invalid locale query." }, { status: 400 });
   }
 
-  const events = readAnalyticsEvents();
+  const events = await readAnalyticsEvents();
   const snapshot = buildFunnelSnapshot(events, locale);
 
   return NextResponse.json({

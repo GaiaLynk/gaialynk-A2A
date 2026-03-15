@@ -15,6 +15,7 @@ export type Dictionary = {
     trust: string;
     useCases: string;
     docs: string;
+    analytics: string;
   };
   home: PageCopy & {
     eyebrow: string;

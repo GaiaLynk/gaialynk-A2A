@@ -35,6 +35,7 @@ export function LeadForm({ locale, type, submitLabel }: LeadFormProps) {
         email,
         company,
         useCase,
+        source: `${type}_form`,
       }),
     });
 

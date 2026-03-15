@@ -9,6 +9,7 @@ export type LeadInput = {
   email?: unknown;
   company?: unknown;
   useCase?: unknown;
+  source?: unknown;
 };
 
 export type ParsedLead = {
@@ -18,6 +19,7 @@ export type ParsedLead = {
   email: string;
   company: string;
   useCase: string;
+  source: string;
 };
 
 export function parseLeadInput(input: LeadInput): { ok: true; data: ParsedLead } | { ok: false; error: string } {
@@ -35,6 +37,7 @@ export function parseLeadInput(input: LeadInput): { ok: true; data: ParsedLead }
   const email = typeof input.email === "string" ? input.email.trim() : "";
   const company = typeof input.company === "string" ? input.company.trim() : "";
   const useCase = typeof input.useCase === "string" ? input.useCase.trim() : "";
+  const source = typeof input.source === "string" ? input.source.trim() : "website_form";
 
   if (!name || !email || !company || !useCase) {
     return { ok: false, error: "Missing required fields." };
@@ -50,9 +53,10 @@ export function parseLeadInput(input: LeadInput): { ok: true; data: ParsedLead }
       type,
       locale,
       name,
-      email,
+      email: email.toLowerCase(),
       company,
       useCase,
+      source,
     },
   };
 }

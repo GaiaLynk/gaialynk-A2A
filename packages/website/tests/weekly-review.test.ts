@@ -1,0 +1,76 @@
+import { describe, expect, test } from "vitest";
+import { buildWeeklyReviewMarkdown } from "../src/lib/analytics/weekly-review";
+
+describe("weekly review markdown", () => {
+  test("renders key metrics, alerts, and locale diagnostics", () => {
+    const markdown = buildWeeklyReviewMarkdown({
+      locale: "all",
+      generatedAt: "2026-03-15T16:00:00.000Z",
+      snapshot: {
+        locale: "all",
+        counts: {
+          homeViews: 100,
+          startBuildingClicks: 12,
+          docsClicks: 8,
+          activationEvents: 6,
+          demoSubmits: 2,
+          waitlistSubmits: 3,
+        },
+        rates: {
+          startBuildingCtr: 12,
+          docsActivationRate: 66.67,
+          activationCompletionRate: 75,
+          demoConversionRate: 2,
+          waitlistConversionRate: 3,
+        },
+        totalEvents: 200,
+        suspectedEvents: 20,
+        suspectedTrafficSharePct: 10,
+        last24hEvents: 80,
+        topCtas: [{ key: "start_building", count: 12 }],
+        topPages: [{ key: "/en", count: 40 }],
+        suspectedByHour24h: [],
+        thresholds: {
+          minStartBuildingCtrPct: 8,
+          minSubmitRatePct: 2,
+          maxSuspectedTrafficSharePct: 35,
+        },
+        alerts: [
+          {
+            code: "LOW_START_BUILDING_CTR",
+            level: "warn",
+            currentPct: 5,
+            thresholdPct: 8,
+            message: "Start Building CTR is below the minimum threshold.",
+          },
+        ],
+        localeDiagnostics: [
+          { locale: "en", homeViews: 50, startBuildingCtr: 15, submitRate: 4, suspectedTrafficSharePct: 8 },
+          { locale: "zh-Hant", homeViews: 30, startBuildingCtr: 8, submitRate: 2, suspectedTrafficSharePct: 11 },
+          { locale: "zh-Hans", homeViews: 20, startBuildingCtr: 5, submitRate: 1, suspectedTrafficSharePct: 12 },
+        ],
+        localeGapThresholds: {
+          minCtrGapPct: 15,
+          minSubmitRateGapPct: 5,
+          minSuspectedShareGapPct: 10,
+        },
+        localeGapAlerts: [
+          {
+            code: "LOCALE_CTR_GAP_HIGH",
+            gapPct: 10,
+            thresholdPct: 8,
+            bestLocale: "en",
+            worstLocale: "zh-Hans",
+          },
+        ],
+      },
+    });
+
+    expect(markdown).toContain("Website Entry Weekly Review Snapshot");
+    expect(markdown).toContain("Start Building CTR");
+    expect(markdown).toContain("Activation completion rate");
+    expect(markdown).toContain("LOW_START_BUILDING_CTR");
+    expect(markdown).toContain("LOCALE_CTR_GAP_HIGH");
+    expect(markdown).toContain("| en | 50 | 15% | 4% | 8% |");
+  });
+});

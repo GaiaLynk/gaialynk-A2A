@@ -4,6 +4,7 @@ export const ANALYTICS_EVENTS = [
   "page_view",
   "cta_click",
   "docs_click",
+  "activation_event",
   "demo_click",
   "waitlist_submit",
   "demo_submit",
@@ -20,6 +21,7 @@ export type AnalyticsPayload = {
   cta_id?: string;
   source?: string;
   device_type?: "mobile" | "desktop";
+  is_suspected_bot?: boolean;
 };
 
 export function inferDeviceType(width: number): "mobile" | "desktop" {
@@ -32,6 +34,7 @@ export function buildAnalyticsPayload(
   return {
     ...payload,
     device_type: payload.device_type ?? "desktop",
+    is_suspected_bot: payload.is_suspected_bot ?? false,
     timestamp: payload.timestamp ?? new Date().toISOString(),
   };
 }

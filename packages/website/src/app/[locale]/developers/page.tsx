@@ -1,4 +1,5 @@
 import { CtaLink } from "@/components/cta-link";
+import { StatusBadge } from "@/components/status-badge";
 import { getDictionary } from "@/content/dictionaries";
 import type { Locale } from "@/lib/i18n/locales";
 
@@ -51,7 +52,10 @@ export default async function DevelopersPage({
           </ul>
         </div>
         <div className="rounded-xl border border-border bg-card p-6">
-          <h2 className="text-xl font-semibold">OSS / Cloud Boundary</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">OSS / Cloud Boundary</h2>
+            <StatusBadge status="In Progress" />
+          </div>
           <ul className="mt-4 space-y-2 text-sm text-muted">
             {boundaries.map((item) => (
               <li key={item}>- {item}</li>

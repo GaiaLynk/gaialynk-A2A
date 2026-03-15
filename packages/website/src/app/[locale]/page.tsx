@@ -1,5 +1,7 @@
 import { CtaLink } from "@/components/cta-link";
+import { StatusBadge } from "@/components/status-badge";
 import { getDictionary } from "@/content/dictionaries";
+import { getVisionTracks } from "@/content/vision-coverage";
 import type { Locale } from "@/lib/i18n/locales";
 
 export default async function HomePage({
@@ -10,6 +12,7 @@ export default async function HomePage({
   const { locale } = await params;
   const dict = getDictionary(locale);
   const home = dict.home;
+  const visionTracks = getVisionTracks(locale);
 
   return (
     <div className="space-y-14">
@@ -45,6 +48,25 @@ export default async function HomePage({
             <p className="mt-3 text-sm text-foreground">{point}</p>
           </div>
         ))}
+      </section>
+
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-6">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-semibold">Vision Coverage Panorama</h2>
+          <p className="text-sm text-muted">Track-by-track coverage from marketing narrative to product-path CTA.</p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {visionTracks.map((item) => (
+            <div key={item.track} className="rounded-lg border border-border bg-background p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold">{item.track}</p>
+                <StatusBadge status={item.status} />
+              </div>
+              <p className="mt-2 text-xs text-muted">{item.pageModule}</p>
+              <p className="mt-2 text-xs text-primary">CTA: {item.cta}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-6 rounded-2xl border border-border bg-gradient-to-b from-card to-background p-7 md:grid-cols-2">

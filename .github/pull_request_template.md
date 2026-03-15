@@ -41,6 +41,23 @@ Manual steps:
 - [ ] No breaking changes
 - [ ] Breaking changes documented below
 
+## Contract impact declaration (required for mainline API changes)
+
+- [ ] This PR does not affect frozen contracts (`/public/entry-events`, `/public/entry-metrics`, `/agents/recommendations`, `/nodes/health`, `/nodes/relay/invoke`)
+- [ ] This PR affects frozen contracts and I have updated:
+  - [ ] `docs/Agent-IM-Mainline-API-Contract-Matrix-v1.md`
+  - [ ] `docs/contracts/mainline-api-contract-baseline.v1.json`
+  - [ ] `packages/server/tests/mainline-contract-compatibility.test.ts`
+  - [ ] Migration / version notes in PR description
+
+## One-click Deploy Path Declaration (required if touching deploy/usage APIs)
+
+- [ ] This PR does not affect one-click deploy frozen path (`/deploy/templates`, `/deploy/templates/:templateId/instantiate`, `/deployments/:deploymentId/activate`, `/usage/limits`)
+- [ ] This PR affects one-click deploy frozen path and I have updated:
+  - [ ] `docs/Agent-IM-Mainline-OneClick-Deploy-Contract-Freeze-List-v1.1-2026-03-15.md`
+  - [ ] `packages/server/tests/mainline-contract-compatibility.test.ts`
+  - [ ] Evidence note in weekly ops report
+
 If breaking:
 
 - Migration notes:

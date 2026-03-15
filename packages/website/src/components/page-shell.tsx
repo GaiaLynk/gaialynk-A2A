@@ -34,6 +34,9 @@ export function PageShell({ locale, children }: PageShellProps) {
             <Link href={`/${locale}/docs`} className="hover:text-foreground">
               {dict.nav.docs}
             </Link>
+            <Link href={`/${locale}/analytics`} className="hover:text-foreground">
+              {dict.nav.analytics}
+            </Link>
             <LangSwitcher currentLocale={locale} />
           </nav>
         </div>

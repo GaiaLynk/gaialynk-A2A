@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { parseLeadInput } from "@/lib/leads/parse";
+import { upsertLead } from "@/lib/leads/store";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -9,12 +10,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: parsed.error }, { status: 400 });
   }
 
+  const result = await upsertLead(parsed.data);
   return NextResponse.json({
     ok: true,
-    message: "Lead captured.",
-    lead: {
-      ...parsed.data,
-      receivedAt: new Date().toISOString(),
-    },
+    message: result.isDuplicate ? "Lead already exists." : "Lead captured.",
+    is_duplicate: result.isDuplicate,
+    lead: result.record,
   });
 }

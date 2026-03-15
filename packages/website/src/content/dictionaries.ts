@@ -9,6 +9,7 @@ const dictionaries: DictionaryMap = {
       trust: "Trust",
       useCases: "Use Cases",
       docs: "Docs",
+      analytics: "Analytics",
     },
     home: {
       eyebrow: "Trustworthy Invocation Network",
@@ -82,6 +83,7 @@ const dictionaries: DictionaryMap = {
       trust: "可信與安全",
       useCases: "應用場景",
       docs: "文件",
+      analytics: "分析看板",
     },
     home: {
       eyebrow: "可信調用網路",
@@ -149,6 +151,7 @@ const dictionaries: DictionaryMap = {
       trust: "可信与安全",
       useCases: "应用场景",
       docs: "文档",
+      analytics: "分析看板",
     },
     home: {
       eyebrow: "可信调用网络",
