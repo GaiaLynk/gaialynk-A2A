@@ -9,16 +9,19 @@
   "scripts": {
     "dev:server": "node --import tsx packages/server/src/index.ts",
     "dev:console": "python -m http.server 5173 -d packages/console",
+    "dev:website": "npm --prefix packages/website run dev",
     "demo:phase0": "./scripts/demo-phase0.sh",
     "db:migrate": "node --import tsx packages/server/src/infra/db/migrate.ts",
     "db:reset": "node --import tsx packages/server/src/infra/db/reset.ts",
     "db:seed": "node --import tsx packages/server/src/infra/db/seed.ts",
     "verify:pg:local": "./scripts/verify-pg-local.sh",
     "bootstrap:pg:local": "./scripts/bootstrap-pg-local.sh",
+    "build:website": "npm --prefix packages/website run build",
     "test": "vitest run",
     "test:pg": "vitest run packages/server/tests/postgres-integration.test.ts",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "typecheck:website": "npm --prefix packages/website run typecheck"
   },
   "keywords": [],
   "author": "",

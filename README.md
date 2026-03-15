@@ -54,6 +54,13 @@ npm run typecheck:website
 npm run build:website
 ```
 
+可选环境变量：
+
+- `NEXT_PUBLIC_SITE_URL`：站点公开域名（用于 sitemap/robots）
+- `NEXT_PUBLIC_DOCS_URL`：文档入口地址（`/[locale]/docs` 会自动附带 UTM）
+- `NEXT_PUBLIC_POSTHOG_KEY`：PostHog 项目 key（可选）
+- `NEXT_PUBLIC_POSTHOG_HOST`：PostHog Host（默认 `https://app.posthog.com`）
+
 PostgreSQL 集成测试（需设置 `DATABASE_URL` 并先执行 migration）：
 
 ```bash

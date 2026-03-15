@@ -1,0 +1,216 @@
+import type { Locale } from "@/lib/i18n/locales";
+import type { DictionaryMap } from "./types";
+
+const dictionaries: DictionaryMap = {
+  en: {
+    localeLabel: "English",
+    nav: {
+      developers: "Developers",
+      trust: "Trust",
+      useCases: "Use Cases",
+      docs: "Docs",
+    },
+    home: {
+      eyebrow: "Trustworthy Invocation Network",
+      title: "Build multi-agent workflows with verifiable trust controls.",
+      description:
+        "GaiaLynk Agent IM helps teams collaborate with agents through auditable receipts, explicit risk controls, and production-ready invocation flows.",
+      primaryCta: "Start Building",
+      seoTitle: "GaiaLynk Agent IM - Trustworthy Agent Collaboration",
+      seoDescription: "Developer-first entry for trustworthy multi-agent collaboration.",
+      valuePoints: ["Collaborative", "Trustworthy", "Composable"],
+      evidenceTitle: "Evidence, not slogans",
+      evidenceDescription:
+        "See how review queues, audit trails, and signed receipts keep high-risk actions controlled and traceable.",
+      evidencePoints: [
+        "Review Queue for high-risk invocations",
+        "Signed receipt verification",
+        "End-to-end audit trail visibility",
+      ],
+      secondaryCtas: {
+        demo: "Book a Demo",
+        waitlist: "Join Waitlist",
+      },
+    },
+    developers: {
+      title: "5-minute path from quickstart to first trusted invocation.",
+      description: "Use docs, SDK, and examples to launch your first workflow.",
+      primaryCta: "Read Quickstart",
+      seoTitle: "Developer Entry - GaiaLynk Agent IM",
+      seoDescription: "API, SDK, and onboarding path for developers.",
+    },
+    trust: {
+      title: "Trust is enforceable, observable, and reviewable.",
+      description: "Understand risk levels, receipts, audit trails, and review queue flow.",
+      primaryCta: "See Trust Flow",
+      seoTitle: "Trust and Safety - GaiaLynk Agent IM",
+      seoDescription: "Audit-ready trust and governance flow.",
+    },
+    useCases: {
+      title: "Real workflows where trustworthy collaboration matters.",
+      description: "From multi-agent coding to high-risk approval pipelines.",
+      primaryCta: "Try This Workflow",
+      seoTitle: "Use Cases - GaiaLynk Agent IM",
+      seoDescription: "High-value scenarios for trustworthy agent collaboration.",
+    },
+    waitlist: {
+      title: "Join the early access waitlist.",
+      description: "Get updates for managed cloud and advanced orchestration capabilities.",
+      primaryCta: "Submit Waitlist",
+      seoTitle: "Waitlist - GaiaLynk Agent IM",
+      seoDescription: "Request early access.",
+    },
+    demo: {
+      title: "Book a focused trust-workflow demo.",
+      description: "Share your use case and we will walk through risk and audit design.",
+      primaryCta: "Submit Demo Request",
+      seoTitle: "Book Demo - GaiaLynk Agent IM",
+      seoDescription: "Schedule a product demo.",
+    },
+    docs: {
+      title: "Go to documentation entry.",
+      description: "Open docs to start integration and explore API references.",
+      primaryCta: "Open Docs",
+      seoTitle: "Docs Entry - GaiaLynk Agent IM",
+      seoDescription: "Documentation entry point.",
+    },
+  },
+  "zh-Hant": {
+    localeLabel: "繁體中文",
+    nav: {
+      developers: "開發者",
+      trust: "可信與安全",
+      useCases: "應用場景",
+      docs: "文件",
+    },
+    home: {
+      eyebrow: "可信調用網路",
+      title: "用可驗證的信任控制，構建多 Agent 協作流程。",
+      description: "GaiaLynk Agent IM 以審計收據、風險分級與可追溯調用，支撐團隊級 Agent 協作。",
+      primaryCta: "開始構建",
+      seoTitle: "GaiaLynk Agent IM - 可信 Agent 協作",
+      seoDescription: "面向開發者的可信多 Agent 協作入口。",
+      valuePoints: ["高效協作", "可驗可信", "彈性可組合"],
+      evidenceTitle: "用證據，不用口號",
+      evidenceDescription: "透過待確認佇列、稽核鏈路與簽名收據，讓高風險動作可控且可追溯。",
+      evidencePoints: ["高風險調用待確認機制", "簽名收據可驗證", "全鏈路稽核可追溯"],
+      secondaryCtas: {
+        demo: "預約 Demo",
+        waitlist: "加入等待名單",
+      },
+    },
+    developers: {
+      title: "5 分鐘從 Quickstart 到首個可信調用。",
+      description: "透過文件、SDK 與示例快速完成接入。",
+      primaryCta: "閱讀 Quickstart",
+      seoTitle: "開發者入口 - GaiaLynk Agent IM",
+      seoDescription: "開發者 API、SDK 與接入路徑。",
+    },
+    trust: {
+      title: "信任可執行、可觀測、可覆核。",
+      description: "理解風險等級、收據、稽核鏈路與待確認流程。",
+      primaryCta: "查看信任流程",
+      seoTitle: "可信與安全 - GaiaLynk Agent IM",
+      seoDescription: "具備審計能力的信任治理流程。",
+    },
+    useCases: {
+      title: "可信協作最有價值的真實任務場景。",
+      description: "從多 Agent 開發到高風險流程審核。",
+      primaryCta: "試用這個流程",
+      seoTitle: "應用場景 - GaiaLynk Agent IM",
+      seoDescription: "可信 Agent 協作的高價值場景。",
+    },
+    waitlist: {
+      title: "加入早期存取等待名單。",
+      description: "優先接收雲端託管與進階能力更新。",
+      primaryCta: "提交等待名單",
+      seoTitle: "等待名單 - GaiaLynk Agent IM",
+      seoDescription: "申請早期存取。",
+    },
+    demo: {
+      title: "預約聚焦可信流程的產品 Demo。",
+      description: "提交你的場景，我們將一起梳理風控與審計方案。",
+      primaryCta: "提交 Demo 申請",
+      seoTitle: "預約 Demo - GaiaLynk Agent IM",
+      seoDescription: "安排產品示範。",
+    },
+    docs: {
+      title: "前往文件入口。",
+      description: "打開文件開始整合並查看 API 參考。",
+      primaryCta: "打開文件",
+      seoTitle: "文件入口 - GaiaLynk Agent IM",
+      seoDescription: "文件入口頁。",
+    },
+  },
+  "zh-Hans": {
+    localeLabel: "简体中文",
+    nav: {
+      developers: "开发者",
+      trust: "可信与安全",
+      useCases: "应用场景",
+      docs: "文档",
+    },
+    home: {
+      eyebrow: "可信调用网络",
+      title: "用可验证的信任控制，构建多 Agent 协作流程。",
+      description: "GaiaLynk Agent IM 通过审计收据、风险分级与可追溯调用，支撑团队级 Agent 协作。",
+      primaryCta: "开始构建",
+      seoTitle: "GaiaLynk Agent IM - 可信 Agent 协作",
+      seoDescription: "面向开发者的可信多 Agent 协作入口。",
+      valuePoints: ["可协作", "可信任", "可组合"],
+      evidenceTitle: "用证据，而非口号",
+      evidenceDescription: "通过待确认队列、审计链路和签名收据，让高风险动作可控且可追溯。",
+      evidencePoints: ["高风险调用待确认机制", "签名收据可验证", "全链路审计可追溯"],
+      secondaryCtas: {
+        demo: "预约 Demo",
+        waitlist: "加入等待名单",
+      },
+    },
+    developers: {
+      title: "5 分钟从 Quickstart 到首个可信调用。",
+      description: "通过文档、SDK 与示例快速完成接入。",
+      primaryCta: "阅读 Quickstart",
+      seoTitle: "开发者入口 - GaiaLynk Agent IM",
+      seoDescription: "开发者 API、SDK 与接入路径。",
+    },
+    trust: {
+      title: "信任可执行、可观测、可复核。",
+      description: "理解风险等级、收据、审计链路与待确认流程。",
+      primaryCta: "查看信任流程",
+      seoTitle: "可信与安全 - GaiaLynk Agent IM",
+      seoDescription: "具备审计能力的信任治理流程。",
+    },
+    useCases: {
+      title: "可信协作最有价值的真实任务场景。",
+      description: "从多 Agent 开发到高风险流程审批。",
+      primaryCta: "试用这个流程",
+      seoTitle: "应用场景 - GaiaLynk Agent IM",
+      seoDescription: "可信 Agent 协作的高价值场景。",
+    },
+    waitlist: {
+      title: "加入早期访问等待名单。",
+      description: "优先接收云托管与进阶能力更新。",
+      primaryCta: "提交等待名单",
+      seoTitle: "等待名单 - GaiaLynk Agent IM",
+      seoDescription: "申请早期访问。",
+    },
+    demo: {
+      title: "预约聚焦可信流程的产品 Demo。",
+      description: "提交你的场景，我们将一起梳理风控与审计方案。",
+      primaryCta: "提交 Demo 申请",
+      seoTitle: "预约 Demo - GaiaLynk Agent IM",
+      seoDescription: "安排产品演示。",
+    },
+    docs: {
+      title: "前往文档入口。",
+      description: "打开文档开始集成并查看 API 参考。",
+      primaryCta: "打开文档",
+      seoTitle: "文档入口 - GaiaLynk Agent IM",
+      seoDescription: "文档入口页。",
+    },
+  },
+};
+
+export function getDictionary(locale: Locale) {
+  return dictionaries[locale];
+}
