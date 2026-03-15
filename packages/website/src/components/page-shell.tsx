@@ -1,0 +1,60 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+import type { Locale } from "@/lib/i18n/locales";
+import { getDictionary } from "@/content/dictionaries";
+import { LangSwitcher } from "./lang-switcher";
+import { PageViewTracker } from "./page-view-tracker";
+
+type PageShellProps = {
+  locale: Locale;
+  children: ReactNode;
+};
+
+export function PageShell({ locale, children }: PageShellProps) {
+  const dict = getDictionary(locale);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <PageViewTracker locale={locale} />
+      <header className="border-b border-border">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+          <Link href={`/${locale}`} className="text-sm font-semibold text-foreground">
+            GaiaLynk Agent IM
+          </Link>
+          <nav className="flex items-center gap-5 text-sm text-muted">
+            <Link href={`/${locale}/developers`} className="hover:text-foreground">
+              {dict.nav.developers}
+            </Link>
+            <Link href={`/${locale}/trust`} className="hover:text-foreground">
+              {dict.nav.trust}
+            </Link>
+            <Link href={`/${locale}/use-cases`} className="hover:text-foreground">
+              {dict.nav.useCases}
+            </Link>
+            <Link href={`/${locale}/docs`} className="hover:text-foreground">
+              {dict.nav.docs}
+            </Link>
+            <Link href={`/${locale}/analytics`} className="hover:text-foreground">
+              {dict.nav.analytics}
+            </Link>
+            <LangSwitcher currentLocale={locale} />
+          </nav>
+        </div>
+      </header>
+      <main className="mx-auto max-w-6xl px-6 py-12">{children}</main>
+      <footer className="border-t border-border py-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 text-xs text-muted">
+          <span>GaiaLynk Agent IM</span>
+          <div className="flex items-center gap-4">
+            <Link href={`/${locale}/privacy`} className="hover:text-foreground">
+              Privacy
+            </Link>
+            <Link href={`/${locale}/cookies`} className="hover:text-foreground">
+              Cookies
+            </Link>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
