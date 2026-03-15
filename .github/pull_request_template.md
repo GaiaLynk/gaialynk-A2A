@@ -41,6 +41,15 @@ Manual steps:
 - [ ] No breaking changes
 - [ ] Breaking changes documented below
 
+## Contract impact declaration (required for mainline API changes)
+
+- [ ] This PR does not affect frozen contracts (`/public/entry-events`, `/public/entry-metrics`, `/agents/recommendations`, `/nodes/health`, `/nodes/relay/invoke`)
+- [ ] This PR affects frozen contracts and I have updated:
+  - [ ] `docs/Agent-IM-Mainline-API-Contract-Matrix-v1.md`
+  - [ ] `docs/contracts/mainline-api-contract-baseline.v1.json`
+  - [ ] `packages/server/tests/mainline-contract-compatibility.test.ts`
+  - [ ] Migration / version notes in PR description
+
 If breaking:
 
 - Migration notes:
