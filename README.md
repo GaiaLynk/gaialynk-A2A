@@ -20,7 +20,7 @@ Most agent projects optimize for raw capability. We optimize for reliable coordi
 - **Web-first, connector-extended product strategy**  
   Keep onboarding lightweight in web while progressively unlocking local execution through explicit authorization boundaries.
 
-## Product Direction (2026 Calibration)
+## Product Direction 
 
 We are aligning execution around one near-term product truth:
 
