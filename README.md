@@ -131,7 +131,7 @@ This is not a nice-to-have. It is the **minimum viable trust floor** for large-s
 If any part of that resonates with you —  
 if you've also felt both thrilled and deeply uneasy about where multi-agent systems are heading,  
 if you also believe that "in an era of runaway capability, what we most urgently need is a bedrock of trust, not another layer of marketing slogans" —  
-I would be profoundly grateful for your eyes, your hard questions, your code, your criticism, or even just a few minutes of your time telling me where I'm most dangerously wrong.
+**I would be profoundly grateful for your eyes, your hard questions, your code, your criticism, or even just a few minutes of your time telling me where I'm most dangerously wrong.**
 
 Thank you for reading this far.  
 Let's try to build something that is **genuinely worthy of trust — and that can withstand the test of time**.
