@@ -17,9 +17,13 @@ export const NOW_CAPABILITY_HEALTH_CHECKS: Array<{
   path: string;
   method: "GET";
   acceptStatuses: number[];
-}> = Object.entries(NOW_CAPABILITY_PATHS).map(([capabilityKey, path]) => ({
-  capabilityKey,
-  path,
-  method: "GET" as const,
-  acceptStatuses: [200, 404],
-}));
+}> = Object.entries(NOW_CAPABILITY_PATHS).map(([capabilityKey, path]) => {
+  // reviewQueue requires actor context; 400 means endpoint is reachable and contract-enforced.
+  const acceptStatuses = capabilityKey === "reviewQueue" ? [200, 400, 404] : [200, 404];
+  return {
+    capabilityKey,
+    path,
+    method: "GET" as const,
+    acceptStatuses,
+  };
+});
