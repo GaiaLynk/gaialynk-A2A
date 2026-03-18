@@ -1,0 +1,85 @@
+# Final triple release gate — manual only. Configure repository Secrets (see docs).
+# Uploads full stdout/stderr for Go evidence.
+
+name: Release gate manual (triple)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release-gate-manual-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  triple-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate required secrets
+        env:
+          MAINLINE_BASE_URL: ${{ secrets.MAINLINE_BASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ACTOR_TRUST_TOKEN: ${{ secrets.ACTOR_TRUST_TOKEN }}
+          MAINLINE_API_URL: ${{ secrets.MAINLINE_API_URL }}
+          MAINLINE_ACTOR_TRUST_TOKEN: ${{ secrets.MAINLINE_ACTOR_TRUST_TOKEN }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+        run: |
+          set -e
+          ok=1
+          for name in MAINLINE_BASE_URL DATABASE_URL ACTOR_TRUST_TOKEN MAINLINE_API_URL MAINLINE_ACTOR_TRUST_TOKEN NEXT_PUBLIC_SITE_URL; do
+            eval "val=\$$name"
+            if [ -z "$val" ]; then echo "::error::Missing repository secret: $name"; ok=0; fi
+          done
+          [ "$ok" = 1 ]
+
+      - name: Triple release gate (preflight + website build + website gate)
+        id: triple
+        continue-on-error: true
+        env:
+          MAINLINE_BASE_URL: ${{ secrets.MAINLINE_BASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ACTOR_TRUST_TOKEN: ${{ secrets.ACTOR_TRUST_TOKEN }}
+          MAINLINE_API_URL: ${{ secrets.MAINLINE_API_URL }}
+          MAINLINE_ACTOR_TRUST_TOKEN: ${{ secrets.MAINLINE_ACTOR_TRUST_TOKEN }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+        run: |
+          set -uo pipefail
+          mkdir -p artifacts
+          LOG="artifacts/triple-gate-full.log"
+          {
+            echo "=== triple-gate run_id=${{ github.run_id }} run_attempt=${{ github.run_attempt }} ==="
+            echo "=== $(date -u -Iseconds) release:preflight:mainline ==="
+            set -e
+            npm run release:preflight:mainline
+            echo "=== $(date -u -Iseconds) NODE_ENV=production website build ==="
+            NODE_ENV=production npm --prefix packages/website run build
+            echo "=== $(date -u -Iseconds) release:gate:website ==="
+            npm run release:gate:website
+            echo "=== $(date -u -Iseconds) TRIPLE GATE OK ==="
+          } 2>&1 | tee "$LOG"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Upload triple-gate log artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: triple-gate-logs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: warn
+
+      - name: Fail if triple gate did not succeed
+        if: steps.triple.outcome != 'success'
+        run: |
+          echo "::error::Triple release gate failed — download artifact triple-gate-logs-* for full log"
+          exit 1

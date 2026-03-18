@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import { listAuditEventsAsync } from "../src/modules/audit/audit.store";
+import { buildActorHeaders } from "./helpers/actor-headers";
 
 describe("mainline launch closure checklist", () => {
   describe("2.2 health check", () => {
@@ -27,7 +28,7 @@ describe("mainline launch closure checklist", () => {
     it("GET /api/v1/me with X-Actor-Id returns actor context", async () => {
       const app = createApp();
       const res = await app.request("/api/v1/me", {
-        headers: { "X-Actor-Id": "user-trusted", "X-Actor-Role": "user" },
+        headers: buildActorHeaders("user-trusted", "user"),
       });
       expect(res.status).toBe(200);
       const body = await res.json();
@@ -51,7 +52,7 @@ describe("mainline launch closure checklist", () => {
       expect(createRes.status).toBe(201);
       const ticketId = (await createRes.json()).data.id;
       const getRes = await app.request(`/api/v1/delegations/tickets/${ticketId}`, {
-        headers: { "X-Actor-Id": "g-header" },
+        headers: buildActorHeaders("g-header"),
       });
       expect(getRes.status).toBe(200);
       const { data: auditData } = await listAuditEventsAsync({
