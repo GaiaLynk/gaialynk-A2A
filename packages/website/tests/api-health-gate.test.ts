@@ -14,6 +14,44 @@ function isSkipApiHealth(): boolean {
   return process.env.RELEASE_GATE_SKIP_API_HEALTH === "1";
 }
 
+const API_HEALTH_MAX_NETWORK_RETRIES = 2;
+const API_HEALTH_RETRY_DELAY_MS = 1000;
+
+function isNetworkClassFetchFailure(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  if (err.name === "AbortError") return true;
+  const m = err.message.toLowerCase();
+  return (
+    m.includes("fetch failed") ||
+    m.includes("econnrefused") ||
+    m.includes("etimedout") ||
+    m.includes("econnreset") ||
+    m.includes("socket hang up") ||
+    m.includes("network request failed")
+  );
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithNetworkRetry(url: string, init: RequestInit): Promise<Response> {
+  let lastErr: unknown;
+  const total = API_HEALTH_MAX_NETWORK_RETRIES + 1;
+  for (let attempt = 0; attempt < total; attempt++) {
+    try {
+      return await fetch(url, init);
+    } catch (err) {
+      lastErr = err;
+      if (!isNetworkClassFetchFailure(err) || attempt >= API_HEALTH_MAX_NETWORK_RETRIES) {
+        throw err;
+      }
+      await sleep(API_HEALTH_RETRY_DELAY_MS);
+    }
+  }
+  throw lastErr;
+}
+
 describe("website API health gate (Now capabilities)", () => {
   test("capability endpoint equals health check path (single source)", () => {
     for (const { capabilityKey, path } of NOW_CAPABILITY_HEALTH_CHECKS) {
@@ -47,11 +85,11 @@ describe("website API health gate (Now capabilities)", () => {
       const url = `${base}${check.path}`;
       let res: Response;
       try {
-        res = await fetch(url, { method: check.method });
+        res = await fetchWithNetworkRetry(url, { method: check.method });
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         throw new Error(
-          `Now capability "${check.capabilityKey}" (${url}): request failed - ${msg}. ` +
+          `Now capability "${check.capabilityKey}" (${url}): request failed after network retries - ${msg}. ` +
             "Ensure mainline is running or set RELEASE_GATE_SKIP_API_HEALTH=1 to skip.",
         );
       }
@@ -60,5 +98,5 @@ describe("website API health gate (Now capabilities)", () => {
         `Now capability "${check.capabilityKey}" (${url}): expected one of [${check.acceptStatuses.join(", ")}], got ${res.status}`,
       ).toBe(true);
     }
-  }, 15000);
+  }, 120_000);
 });
