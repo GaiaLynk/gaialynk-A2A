@@ -2,19 +2,19 @@ import {
   Noto_Sans_SC,
   Noto_Sans_TC,
   Plus_Jakarta_Sans,
-  Syne,
+  Space_Grotesk,
 } from "next/font/google";
 
 /**
- * 英文展示：Hero / H1–H3，有力量感、与正文明晰区分
+ * 英文展示：Hero / H1–H3
+ * Space Grotesk — 几何感科技风，干净的字形比例，无降部溢出问题
  */
-export const fontDisplay = Syne({
+export const fontDisplay = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  weight: ["500", "600", "700"],
   variable: "--font-display",
   display: "swap",
   adjustFontFallback: true,
-  /** T-6.4：首屏 Hero/H1 使用展示字体，预加载降低 FOUT */
   preload: true,
 });
 
