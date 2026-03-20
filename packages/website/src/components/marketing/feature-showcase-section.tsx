@@ -160,7 +160,7 @@ export function FeatureShowcaseSection({ data }: FeatureShowcaseSectionProps) {
   const { sectionTitle, sectionSubtitle, blocks } = data;
 
   return (
-    <section className="space-y-12 overflow-x-hidden md:space-y-16" aria-labelledby="feature-showcase-heading">
+    <section className="space-y-12 md:space-y-16" aria-labelledby="feature-showcase-heading">
       <motion.header
         className="text-center"
         initial={{ opacity: 0, y: 16 }}
